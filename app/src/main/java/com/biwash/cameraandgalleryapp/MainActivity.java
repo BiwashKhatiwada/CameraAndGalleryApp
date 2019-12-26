@@ -9,16 +9,19 @@ import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.media.Image;
+import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
-    Button btnTakeImage;
+    Button btnTakeImage,btnOpenGallery;
     ImageView imgId;
 
     @Override
@@ -27,6 +30,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         btnTakeImage=findViewById(R.id.btnTakeImage);
         imgId=findViewById(R.id.imgId);
+        btnOpenGallery=findViewById(R.id.btnOpenGallery);
         checkPermission();
         btnTakeImage.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -34,9 +38,20 @@ public class MainActivity extends AppCompatActivity {
                 loadCamera();
             }
         });
-
+        btnOpenGallery.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                browseImage();
+            }
+        });
 
     }
+    private void browseImage(){
+        Intent intent=new Intent(Intent.ACTION_PICK);
+        intent.setType("image/*");
+        startActivityForResult(intent,2);
+    }
+
 
     private void checkPermission(){
         if(ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)!= PackageManager.PERMISSION_GRANTED){
@@ -61,6 +76,30 @@ public class MainActivity extends AppCompatActivity {
             Bitmap imageBitmap=(Bitmap) extras.get("data");
             imgId.setImageBitmap(imageBitmap);
         }
+        if(requestCode == 2 && resultCode==RESULT_OK){
+            if(data==null){
+                Toast.makeText(this, "Please select an image", Toast.LENGTH_SHORT).show();
+            }
+            Uri uri=data.getData();
+            imgId.setImageURI(uri);
+            String imagePath=getRealPathFromURI(uri);
+            Toast.makeText(this, imagePath, Toast.LENGTH_SHORT).show();
+
+        }
+
+    }
+    private String getRealPathFromURI(Uri contentURI) {
+        String filePath;
+        Cursor cursor = getContentResolver().query(contentURI, null, null, null, null);
+        if (cursor == null) {
+            filePath = contentURI.getPath();
+        } else {
+            cursor.moveToFirst();
+            int idx = cursor.getColumnIndex(MediaStore.Images.ImageColumns.DATA);
+            filePath = cursor.getString(idx);
+            cursor.close();
+        }
+        return filePath;
     }
 
 }

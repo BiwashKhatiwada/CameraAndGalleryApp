@@ -13,11 +13,17 @@
         android:layout_width="match_parent"
         android:layout_height="479dp"
         app:srcCompat="@drawable/img" />
-
     <Button
         android:layout_width="match_parent"
         android:id="@+id/btnTakeImage"
         android:layout_height="wrap_content"
         android:text="Take picture"/>
+
+    <Button
+        android:layout_width="match_parent"
+        android:id="@+id/btnOpenGallery"
+        android:layout_marginTop="15dp"
+        android:layout_height="wrap_content"
+        android:text="Select Image"/>
 
 </LinearLayout>
